@@ -15,20 +15,21 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
   const data = useMemo(() => {
     // Base data points
     const baseData = [
-      { x: 0, y: 5 },
-      { x: 10, y: 10 },
-      { x: 20, y: 15 },
-      { x: 40, y: 35 },
-      { x: 50, y: 60 },
-      { x: 60, y: 80 },
-      { x: 70, y: 65 },
-      { x: 80, y: 45 },
-      { x: 90, y: 25 },
-      { x: 100, y: 10 },
+      { x: 0, y: 5, students: 1 },
+      { x: 10, y: 10, students: 2 },
+      { x: 20, y: 15, students: 2 },
+      { x: 30, y: 25, students: 3 },
+      { x: 40, y: 35, students: 3 },
+      { x: 50, y: 60, students: 4 },
+      { x: 60, y: 80, students: 4 },
+      { x: 70, y: 65, students: 3 },
+      { x: 80, y: 45, students: 3 },
+      { x: 90, y: 25, students: 4 },
+      { x: 100, y: 10, students: 2 },
     ]
 
     // Add the user's percentile point
-    const userPoint = { x: percentileValue, y: 25 + percentileValue / 10 }
+    const userPoint = { x: percentileValue, y: 25 + percentileValue / 10, students: 3, isUser: true }
 
     // Combine and sort
     return [...baseData, userPoint].sort((a, b) => a.x - b.x)
@@ -40,7 +41,8 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
         <div>
           <h2 className="text-md font-bold">Comparison Graph</h2>
           <p className="text-gray-700 mt-3">
-            <span className="font-bold">You scored {percentileValue}% percentile</span> which is lower than the<br></br>
+            <span className="font-bold">You scored {percentileValue}% percentile</span> which is lower than the
+            <br className="hidden md:block"></br>
             average percentile 72% of all the engineers who took this assessment
           </p>
         </div>
@@ -49,7 +51,7 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
         </div>
       </div>
 
-      <div className="h-64 mt-8">
+      <div className="h-64 mt-8 relative">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 20, bottom: 20, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -65,8 +67,8 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
                 if (active && payload && payload.length) {
                   return (
                     <div className="bg-white p-2 border rounded shadow-md">
-                      <p className="text-sm">{`${payload[0].payload.x}`}</p>
-                      <p className="text-sm font-bold">{`numberOfStudent : 4`}</p>
+                      <p className="text-lg font-bold">{`${payload[0].payload.x}`}</p>
+                      <p className="text-sm text-purple-500">{`numberOfStudent : ${payload[0].payload.students}`}</p>
                     </div>
                   )
                 }
@@ -77,14 +79,28 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
               x={percentileValue}
               stroke="#888"
               strokeDasharray="3 3"
-              label={{ value: "your percentile", position: "top", fill: "#666", fontSize: 12 }}
+              label={{
+                value: "your percentile",
+                position: "insideBottomRight",
+                fill: "#666",
+                fontSize: 12,
+                dy: -20,
+                dx: 0,
+              }}
             />
             <Line
               type="monotone"
               dataKey="y"
               stroke="#6366f1"
               strokeWidth={2}
-              dot={{ r: 4 }}
+              dot={(props) => {
+                const { cx, cy, payload } = props
+                return payload.isUser ? (
+                  <circle cx={cx} cy={cy} r={6} fill="#6366f1" />
+                ) : (
+                  <circle cx={cx} cy={cy} r={4} fill="#6366f1" />
+                )
+              }}
               activeDot={{ r: 6, fill: "#4f46e5" }}
             />
           </LineChart>
@@ -93,4 +109,3 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
     </div>
   )
 }
-

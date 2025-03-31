@@ -1,3 +1,7 @@
+"use client"
+
+import { useState, useEffect } from "react"
+
 interface QuickStatisticsProps {
   rank: string
   percentile: string
@@ -5,6 +9,37 @@ interface QuickStatisticsProps {
 }
 
 export default function QuickStatistics({ rank, percentile, score }: QuickStatisticsProps) {
+  const [animatedRank, setAnimatedRank] = useState("0")
+  const [animatedPercentile, setAnimatedPercentile] = useState("0")
+  const [animatedScore, setAnimatedScore] = useState("0")
+
+  // Animation for numbers
+  useEffect(() => {
+    const animateValue = (start: number, end: number, setter: (value: string) => void, duration: number) => {
+      const startTime = Date.now()
+
+      const updateValue = () => {
+        const now = Date.now()
+        const elapsed = now - startTime
+        const progress = Math.min(elapsed / duration, 1)
+
+        const currentValue = Math.floor(progress * (end - start) + start)
+        setter(currentValue.toString())
+
+        if (progress < 1) {
+          requestAnimationFrame(updateValue)
+        }
+      }
+
+      requestAnimationFrame(updateValue)
+    }
+
+    // Animate all values with different durations for a staggered effect
+    animateValue(0, Number.parseInt(rank), setAnimatedRank, 1000)
+    animateValue(0, Number.parseInt(percentile), setAnimatedPercentile, 1500)
+    animateValue(0, Number.parseInt(score), setAnimatedScore, 2000)
+  }, [rank, percentile, score])
+
   return (
     <div className="bg-white rounded-lg border p-6">
       <h2 className="text-md font-bold mb-3">Quick Statistics</h2>
@@ -14,7 +49,7 @@ export default function QuickStatistics({ rank, percentile, score }: QuickStatis
             <span className="text-xl bg-gray-100 rounded-full p-3 border text-yellow-500">🏆</span>
           </div>
           <div>
-            <div className="text-xl font-bold">{rank}</div>
+            <div className="text-xl font-bold transition-all duration-300 hover:scale-110">{animatedRank}</div>
             <div className="text-gray-500 text-sm">YOUR RANK</div>
           </div>
         </div>
@@ -27,7 +62,7 @@ export default function QuickStatistics({ rank, percentile, score }: QuickStatis
             <span className="text-xl bg-gray-100 rounded-full p-3 border text-gray-400">📄</span>
           </div>
           <div>
-            <div className="text-xl font-bold">{percentile}%</div>
+            <div className="text-xl font-bold transition-all duration-300 hover:scale-110">{animatedPercentile}%</div>
             <div className="text-gray-500 text-sm">PERCENTILE</div>
           </div>
         </div>
@@ -40,7 +75,7 @@ export default function QuickStatistics({ rank, percentile, score }: QuickStatis
             <span className="text-xl bg-gray-100 rounded-full p-3 border text-green-500">✅</span>
           </div>
           <div>
-            <div className="text-xl font-bold">{score} / 15</div>
+            <div className="text-xl font-bold transition-all duration-300 hover:scale-110">{animatedScore} / 15</div>
             <div className="text-gray-500 text-sm">CORRECT ANSWERS</div>
           </div>
         </div>

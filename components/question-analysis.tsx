@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo } from "react"
-import { PieChart, Pie, Cell, ResponsiveContainer } from "@/components/ui/chart"
+import { PieChart, Pie, ResponsiveContainer } from "@/components/ui/chart"
+import { Cell } from "recharts"
 
 interface QuestionAnalysisProps {
   score: string
@@ -25,7 +26,7 @@ export default function QuestionAnalysis({ score }: QuestionAnalysisProps) {
     <div className="bg-white rounded-lg border p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-md font-bold">Question Analysis</h2>
-        <span className="text-blue-600 text-sm font-bold">{score}/15</span>
+        <span className="text-blue-600 text-sm font-bold animate-pulse">{score}/15</span>
       </div>
 
       <div>
@@ -46,7 +47,7 @@ export default function QuestionAnalysis({ score }: QuestionAnalysisProps) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              {/* Rocket emoji in the center */}
+              {/* Target emoji in the center */}
               <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fontSize="24px">
                 🎯
               </text>
