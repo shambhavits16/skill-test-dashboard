@@ -49,7 +49,7 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
         <div>
           <h2 className="text-md font-bold">Comparison Graph</h2>
           <p className="text-gray-700 mt-3">
-            You scored {percentile}% percentile which is lower than the average percentile 72% of all the engineers who
+            <span className="font-bold">You scored {percentile}% percentile</span> which is lower than the<br></br>average percentile 72% of all the engineers who
             took this assessment
           </p>
         </div>

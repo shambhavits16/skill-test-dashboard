@@ -30,7 +30,7 @@ export default function QuestionAnalysis({ score }: QuestionAnalysisProps) {
 
       <div>
         <p className="text-gray-700 mb-6">
-          You scored {score} question correct out of 15.
+          <span className="font-bold">You scored {score} question correct out of 15.</span>
           {scoreValue < 10
             ? " You need significant improvements."
             : scoreValue < 13
