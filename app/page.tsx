@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import SkillTestHeader from "@/components/skill-test-header"
 import QuickStatistics from "@/components/quick-statistics"
@@ -15,11 +15,27 @@ export default function SkillTestDashboard() {
   const [percentile, setPercentile] = useState("30")
   const [score, setScore] = useState("10")
 
+  // Load saved state from localStorage on initial render
+  useEffect(() => {
+    const savedRank = localStorage.getItem("skilltest-rank")
+    const savedPercentile = localStorage.getItem("skilltest-percentile")
+    const savedScore = localStorage.getItem("skilltest-score")
+
+    if (savedRank) setRank(savedRank)
+    if (savedPercentile) setPercentile(savedPercentile)
+    if (savedScore) setScore(savedScore)
+  }, [])
+
   // Function to update all stats at once
   const updateStats = (newRank: string, newPercentile: string, newScore: string) => {
     setRank(newRank)
     setPercentile(newPercentile)
     setScore(newScore)
+
+    // Save to localStorage
+    localStorage.setItem("skilltest-rank", newRank)
+    localStorage.setItem("skilltest-percentile", newPercentile)
+    localStorage.setItem("skilltest-score", newScore)
   }
 
   return (

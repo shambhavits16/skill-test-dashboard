@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
 import Image from "next/image"
 
 interface UpdateModalProps {
@@ -18,15 +20,37 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
   const [score, setScore] = useState("10")
   const [errors, setErrors] = useState({
     rank: "",
-    percentile: ""
+    percentile: "",
+    score: "",
   })
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Load saved state from localStorage when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const savedRank = localStorage.getItem("skilltest-rank")
+      const savedPercentile = localStorage.getItem("skilltest-percentile")
+      const savedScore = localStorage.getItem("skilltest-score")
+
+      setRank(savedRank || "1")
+      setPercentile(savedPercentile || "30")
+      setScore(savedScore || "10")
+
+      setErrors({
+        rank: "",
+        percentile: "",
+        score: "",
+      })
+    }
+  }, [isOpen])
 
   const validateRank = (value: string) => {
     if (!value.trim()) {
       return "required | should be number"
     }
-    if (isNaN(Number(value))) {
-      return "should be number"
+    const num = Number(value)
+    if (isNaN(num) || num < 1) {
+      return "should be number greater than 0"
     }
     return ""
   }
@@ -42,31 +66,56 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
     return ""
   }
 
+  const validateScore = (value: string) => {
+    if (!value.trim()) {
+      return "required | score 0-15"
+    }
+    const num = Number(value)
+    if (isNaN(num) || num < 0 || num > 15) {
+      return "score 0-15"
+    }
+    return ""
+  }
+
   const handleRankChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setRank(value)
-    setErrors(prev => ({ ...prev, rank: validateRank(value) }))
+    setErrors((prev) => ({ ...prev, rank: validateRank(value) }))
   }
 
   const handlePercentileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setPercentile(value)
-    setErrors(prev => ({ ...prev, percentile: validatePercentile(value) }))
+    setErrors((prev) => ({ ...prev, percentile: validatePercentile(value) }))
+  }
+
+  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setScore(value)
+    setErrors((prev) => ({ ...prev, score: validateScore(value) }))
   }
 
   const handleSave = () => {
     const rankError = validateRank(rank)
     const percentileError = validatePercentile(percentile)
+    const scoreError = validateScore(score)
 
-    if (rankError || percentileError) {
+    if (rankError || percentileError || scoreError) {
       setErrors({
         rank: rankError,
-        percentile: percentileError
+        percentile: percentileError,
+        score: scoreError,
       })
       return
     }
 
-    onSave(rank, percentile, score)
+    setIsSaving(true)
+
+    // Simulate a short delay to show the loading indicator
+    setTimeout(() => {
+      onSave(rank, percentile, score)
+      setIsSaving(false)
+    }, 800)
   }
 
   if (!isOpen) return null
@@ -93,7 +142,7 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
               <Input
                 value={rank}
                 onChange={handleRankChange}
-                className={`w-48 h-10 text-base ${errors.rank ? 'border-red-500' : 'border-blue-500'}`}
+                className={`w-48 h-10 text-base ${errors.rank ? "border-red-500" : "border-blue-500"}`}
               />
               {errors.rank && <p className="text-red-500 text-xs mt-1">{errors.rank}</p>}
             </div>
@@ -110,7 +159,7 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
               <Input
                 value={percentile}
                 onChange={handlePercentileChange}
-                className={`w-48 h-10 text-base ${errors.percentile ? 'border-red-500' : 'border-blue-500'}`}
+                className={`w-48 h-10 text-base ${errors.percentile ? "border-red-500" : "border-blue-500"}`}
               />
               {errors.percentile && <p className="text-red-500 text-xs mt-1">{errors.percentile}</p>}
             </div>
@@ -123,11 +172,14 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
             <label className="text-base font-medium flex-1">
               Update your <span className="font-bold">Current Score (out of 15)</span>
             </label>
-            <Input
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
-              className="w-48 h-10 text-base border-blue-500"
-            />
+            <div className="flex flex-col">
+              <Input
+                value={score}
+                onChange={handleScoreChange}
+                className={`w-48 h-10 text-base ${errors.score ? "border-red-500" : "border-blue-500"}`}
+              />
+              {errors.score && <p className="text-red-500 text-xs mt-1">{errors.score}</p>}
+            </div>
           </div>
         </div>
 
@@ -136,17 +188,28 @@ export default function UpdateModal({ isOpen, onClose, onSave }: UpdateModalProp
             variant="outline"
             onClick={onClose}
             className="h-10 px-4 text-indigo-800 border-indigo-800"
+            disabled={isSaving}
           >
             cancel
           </Button>
           <Button
             className="h-10 px-6 bg-blue-950 hover:bg-blue-900 flex items-center"
             onClick={handleSave}
+            disabled={isSaving}
           >
-            save <ArrowRight className="ml-1 h-4 w-4" />
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              </>
+            ) : (
+              <>
+                save <ArrowRight className="ml-1 h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
       </div>
     </div>
   )
 }
+

@@ -1,15 +1,6 @@
 "use client"
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "@/components/ui/chart"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
 import { TrendingUp } from "lucide-react"
 import { useMemo } from "react"
 
@@ -49,8 +40,8 @@ export default function ComparisonGraph({ percentile }: ComparisonGraphProps) {
         <div>
           <h2 className="text-md font-bold">Comparison Graph</h2>
           <p className="text-gray-700 mt-3">
-            <span className="font-bold">You scored {percentile}% percentile</span> which is lower than the<br></br>average percentile 72% of all the engineers who
-            took this assessment
+            <span className="font-bold">You scored {percentileValue}% percentile</span> which is lower than the<br></br>
+            average percentile 72% of all the engineers who took this assessment
           </p>
         </div>
         <div className="w-10 h-10 flex items-center justify-center text-3xl bg-gray-100 rounded-full p-3 border">
